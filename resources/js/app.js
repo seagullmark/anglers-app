@@ -1,13 +1,13 @@
-import { createApp, h } from 'vue';
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createApp, h } from 'vue'
+import { createInertiaApp } from '@inertiajs/vue3'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
 import MainLayout from '@/Layouts/MainLayout.vue'
-import { route, ZiggyVue } from 'ziggy-js';
-import { Ziggy } from './ziggy';
-import { i18nVue } from "laravel-vue-i18n";
+import { ZiggyVue } from 'ziggy-js'
+import { Ziggy } from './ziggy'
+import { i18nVue } from 'laravel-vue-i18n'
 
 createInertiaApp({
-  resolve: name => {
+  resolve: (name) => {
     const page = resolvePageComponent(
       `./Pages/${name}.vue`,
       import.meta.glob('./Pages/**/**/*.vue')
@@ -24,10 +24,10 @@ createInertiaApp({
       .use(ZiggyVue, Ziggy) // route() が全コンポーネントで使える
       .use(i18nVue, {
         resolve: async (lang) => {
-          const langs = import.meta.glob('../../lang/*.json');
-          return await langs[`../../lang/${lang}.json`]();
-        },
+          const langs = import.meta.glob('../../lang/*.json')
+          return await langs[`../../lang/${lang}.json`]()
+        }
       })
       .mount(el)
-  },
-});
+  }
+})
