@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
             // Inertia の標準ミドルウェア
             HandleInertiaRequests::class,
         ]);
+
+        $middleware->redirectGuestsTo(fn () => route('login'));
+        $middleware->redirectUsersTo(fn () => route('index'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

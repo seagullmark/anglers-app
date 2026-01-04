@@ -2,15 +2,24 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Auth\MustVerifyEmail;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Foundation\Auth\Access\Authorizable;
+use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Notifications\Notifiable;
+use GearboxSolutions\EloquentFileMaker\Database\Eloquent\FMModel;
 
-class User extends Authenticatable
+class User extends FMModel implements
+    MustVerifyEmailContract,
+    AuthenticatableContract,
+    AuthorizableContract,
+    CanResetPasswordContract
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use Authenticatable, Authorizable, CanResetPassword, MustVerifyEmail, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -41,6 +50,7 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'id' => 'string',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
