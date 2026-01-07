@@ -24,7 +24,7 @@ class AuthController extends Controller
         );
 
         $credentials = $request->only('email', 'password');
-        $credentials['email'] = str_replace('@', '\@', $credentials['email']);
+        $credentials['email'] = '==' . str_replace('@', '\@', $credentials['email']);
 
         if (!Auth::attempt($credentials, true)) { // true is for remember me
             throw ValidationException::withMessages([
