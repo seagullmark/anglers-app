@@ -12,6 +12,8 @@ use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Notifications\Notifiable;
 use GearboxSolutions\EloquentFileMaker\Database\Eloquent\FMModel;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Facades\MyUtilFacade;
 
 class User extends FMModel implements
     MustVerifyEmailContract,
@@ -54,5 +56,16 @@ class User extends FMModel implements
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    protected $fieldMapping = [
+        'users|USER_PHOTOS::thumbnail' => 'thumbnail',
+    ];
+
+    protected function thumbnail(): Attribute
+    {
+        return Attribute::make(
+            get: fn(string|null $value) => MyUtilFacade::getContainerUrl($value),
+        );
     }
 }

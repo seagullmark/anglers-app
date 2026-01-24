@@ -14,4 +14,7 @@ Route::middleware('auth')->group(function () {
     })->name('index');
 
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
+
+    Route::get('/container/{path}', [App\Http\Controllers\ContainerController::class, 'getImage'])
+        ->name('container');
 });
