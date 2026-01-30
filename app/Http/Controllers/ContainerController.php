@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
@@ -36,6 +37,7 @@ class ContainerController extends Controller
         $cookieJar = \GuzzleHttp\Cookie\CookieJar::fromArray([], '');
 
         // Http ファサードを使用
+        /** @var Response $response */
         $response = Http::withOptions([
             'follow_redirects' => true, // リダイレクトを追従
             'cookies' => $cookieJar, // CookieJar を指定

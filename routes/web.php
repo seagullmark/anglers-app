@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserPhotoController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -14,6 +15,8 @@ Route::middleware('auth')->group(function () {
     })->name('index');
 
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
+
+    Route::resource('user-photos', UserPhotoController::class)->only(['store']);
 
     Route::get('/container/{path}', [App\Http\Controllers\ContainerController::class, 'getImage'])
         ->name('container');
