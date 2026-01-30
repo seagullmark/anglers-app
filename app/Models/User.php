@@ -15,6 +15,8 @@ use GearboxSolutions\EloquentFileMaker\Database\Eloquent\FMModel;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use App\Facades\MyUtilFacade;
 
+use Illuminate\Database\Eloquent\Relations\hasOne;
+
 class User extends FMModel implements
     MustVerifyEmailContract,
     AuthenticatableContract,
@@ -58,14 +60,24 @@ class User extends FMModel implements
         ];
     }
 
-    protected $fieldMapping = [
-        'users|USER_PHOTOS::thumbnail' => 'thumbnail',
-    ];
+    // protected $fieldMapping = [
+    //     'users|USER_PHOTOS::thumbnail' => 'thumbnail',
+    //     'users|USER_PHOTOS::id' => 'image_id',
+    // ];
 
     protected function thumbnail(): Attribute
     {
         return Attribute::make(
             get: fn(string|null $value) => MyUtilFacade::getContainerUrl($value),
+        );
+    }
+
+    public function photo(): HasOne
+    {
+        return $this->hasOne(
+            UserPhoto::class,
+            'user_id',  // user_photos.user_id
+            'id'        // users.id
         );
     }
 }
