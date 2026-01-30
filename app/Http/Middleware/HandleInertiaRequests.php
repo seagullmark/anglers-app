@@ -41,7 +41,8 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user()
                     ? [
                         'id' => $request->user()->id,
-                        'thumbnail' => $request->user()->thumbnail,
+                        // 'thumbnail' => $request->user()->thumbnail,
+                        'thumbnail' => $request->user()->photo?->thumbnail,
                     ] : null,
             ],
         ];
