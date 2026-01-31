@@ -20,7 +20,6 @@ class ContainerController extends Controller
 
     public function getImage(Request $request)
     {
-        // 認証はDBアクセス側で担保（FMS: AuthenticatedStream=1 前提）。route の auth とは別。
         $path = Crypt::decryptString($request->route('path'));
         $info = pathinfo($path);
         $ext = explode('?', strtolower(@$info['extension']));
