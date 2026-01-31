@@ -60,10 +60,12 @@ class User extends FMModel implements
         ];
     }
 
-    // protected $fieldMapping = [
-    //     'users|USER_PHOTOS::thumbnail' => 'thumbnail',
-    //     'users|USER_PHOTOS::id' => 'image_id',
-    // ];
+    // FileMaker field mapping
+    protected $fieldMapping = [
+        // FileMaker Relationship Field Mapping (related table field mapping)
+        'users|USER_PHOTOS::thumbnail' => 'thumbnail',
+        'users|USER_PHOTOS::id' => 'image_id',
+    ];
 
     protected function thumbnail(): Attribute
     {
@@ -72,6 +74,7 @@ class User extends FMModel implements
         );
     }
 
+    // Laravel Eloquent Relationship
     public function photo(): HasOne
     {
         return $this->hasOne(
