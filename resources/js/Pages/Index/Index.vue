@@ -28,8 +28,10 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { Link, useForm, usePage } from '@inertiajs/vue3'
+import { useZiggyRoute } from '@/composables/useZiggyRoute'
 
 const page = usePage()
+const route = useZiggyRoute()
 const userId = computed(() => page.props.auth?.user?.id ?? 'unknown')
 const userThumbnail = computed(() => page.props.auth?.user?.thumbnail ?? null)
 
@@ -44,7 +46,7 @@ const onFileChange = (event) => {
 }
 
 const submit = () => {
-  form.post('/user-photos', {
+  form.post(route('user-photos.store'), {
     forceFormData: true,
     onFinish: () => {
       form.reset('file')
