@@ -11,6 +11,10 @@ class UserPhoto extends FMModel
 {
     use HasFactory;
 
+    protected $hidden = [
+        'photo',
+    ];
+
     protected $casts = [
         'id' => 'string',
     ];
