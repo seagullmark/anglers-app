@@ -28,7 +28,7 @@ docker run --rm \
   composer install
 
 # コンテナ起動
-docker compose up -d --build
+./vendor/bin/sail up -d
 
 # 以降は sail を使う
 ./vendor/bin/sail npm install
