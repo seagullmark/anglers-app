@@ -27,10 +27,12 @@ docker run --rm \
   composer:2 \
   composer install
 
+# 以降は sail を使う
+
 # コンテナ起動
 ./vendor/bin/sail up -d
 
-# 以降は sail を使う
+
 ./vendor/bin/sail npm install
 ./vendor/bin/sail artisan key:generate
 ./vendor/bin/sail npm run dev
