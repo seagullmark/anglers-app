@@ -45,10 +45,10 @@ class UserPhotoController extends Controller
 
         $photo = null;
         if ($user?->image_id) {
-            $photo = UserPhoto::where('id', $user->image_id)->first();
+            $photo = UserPhoto::where('id', '==', $user->image_id)->first();
         }
         if (!$photo) {
-            $photo = UserPhoto::where('user_id', $user->id)->first();
+            $photo = UserPhoto::where('user_id', '==', $user->id)->first();
         }
         if (!$photo) {
             $photo = new UserPhoto();
@@ -59,8 +59,8 @@ class UserPhotoController extends Controller
         $photo->save();
 
         if (!empty($photo->id)) {
-            UserPhoto::where('user_id', $user->id)
-                ->where('id', '!=', $photo->id)
+            UserPhoto::where('user_id', '==', $user->id)
+                ->whereNot('id', $photo->id)
                 ->delete();
         }
 
