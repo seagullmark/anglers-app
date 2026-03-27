@@ -24,7 +24,7 @@ class UserPhotoController extends Controller
      */
     public function create()
     {
-        //
+        return inertia('User/ProfilePhoto');
     }
 
     /**

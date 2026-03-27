@@ -14,6 +14,9 @@ Route::middleware('auth')->group(function () {
         return inertia('Index/Index');
     })->name('index');
 
+    Route::get('/user/profile-photo', [UserPhotoController::class, 'create'])
+        ->name('user.profile-photo');
+
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
 
     Route::resource('user-photos', UserPhotoController::class)->only(['store']);

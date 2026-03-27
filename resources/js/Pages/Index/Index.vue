@@ -1,59 +1,33 @@
 <template>
-  <div>
-    <h1>Index</h1>
-    <p>You are logged in.</p>
-    <p>User ID: {{ userId }}</p>
-    <form @submit.prevent="submit" enctype="multipart/form-data">
-      <label for="photo">Upload photo</label>
-      <input
-        id="photo"
-        ref="fileInput"
-        type="file"
-        accept="image/png,image/jpeg"
-        @change="onFileChange"
-        required
-      />
-      <div v-if="form.errors.file">{{ form.errors.file }}</div>
-      <button type="submit" :disabled="form.processing">Upload</button>
-    </form>
-    <div v-if="userThumbnail">
-      <p>Thumbnail</p>
-      <img :src="userThumbnail" alt="User thumbnail" class="user-thumbnail" />
+  <Head title="Home" />
+
+  <div class="space-y-8">
+    <div>
+      <p class="text-sm font-medium text-sky-600">Home</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight text-slate-900">User Settings</h1>
+      <p class="mt-3 max-w-2xl text-sm text-slate-600">
+        Choose a page to manage your account settings.
+      </p>
     </div>
-    <p v-else>No thumbnail</p>
-    <Link :href="route('logout')" method="post" as="button">Log out</Link>
+
+    <div class="grid gap-6 md:grid-cols-2">
+      <Link
+        :href="route('user.profile-photo')"
+        class="block rounded-2xl border border-slate-200 bg-slate-50 p-6 transition hover:border-sky-300 hover:bg-sky-50"
+      >
+        <p class="text-sm font-medium text-sky-600">User</p>
+        <h2 class="mt-2 text-xl font-semibold text-slate-900">Profile Photo</h2>
+        <p class="mt-3 text-sm text-slate-600">
+          Upload and replace the image used for your profile.
+        </p>
+      </Link>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
-import { Link, useForm, usePage } from '@inertiajs/vue3'
+import { Head, Link } from '@inertiajs/vue3'
 import { useZiggyRoute } from '@/composables/useZiggyRoute'
 
-const page = usePage()
 const route = useZiggyRoute()
-const userId = computed(() => page.props.auth?.user?.id ?? 'unknown')
-const userThumbnail = computed(() => page.props.auth?.user?.thumbnail ?? null)
-
-const form = useForm({
-  file: null
-})
-
-const fileInput = ref(null)
-
-const onFileChange = (event) => {
-  form.file = event.target.files?.[0] ?? null
-}
-
-const submit = () => {
-  form.post(route('user-photos.store'), {
-    forceFormData: true,
-    onFinish: () => {
-      form.reset('file')
-      if (fileInput.value) {
-        fileInput.value.value = ''
-      }
-    }
-  })
-}
 </script>
