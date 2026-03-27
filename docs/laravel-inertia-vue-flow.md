@@ -180,21 +180,21 @@ flowchart TD
 
 ## 6. 指定されたディレクトリの役割
 
-| ディレクトリ | 役割 | このプロジェクトでの例 |
-| --- | --- | --- |
-| `app/Http/Controllers` | リクエストを受けて、何を返すか決める場所 | `AuthController`, `UserPhotoController`, `ContainerController` |
-| `app/Http/Middleware` | 全ページ共通の処理や共通データを挟む場所 | `HandleInertiaRequests` で `auth.user` と `flash.success` を共有 |
-| `app/Http/Requests` | 入力値を整える・バリデーションする場所 | `ContainerRequest` が画像ファイルや base64 を受ける |
-| `app/Models` | データを扱う場所 | `User`, `UserPhoto` が FileMaker データを扱う |
-| `app/Facades` | サービスクラスを Laravel らしい書き方で呼び出すための窓口 | `MyUtilFacade` |
-| `app/Mylib` | 小さな独自処理をまとめる場所 | `MyUtil` が FileMaker コンテナ URL を Laravel 用 URL に変換 |
-| `app/Services` | ビジネスロジックが増えたときに、Controller から処理を分離する場所 | 今は未作成。たとえば `UserPhotoService` など |
-| `app/Support` | 汎用的な補助クラスを置く場所 | 今は未作成。共通変換、ヘルパー、値オブジェクト候補など |
-| `app/Providers` | サービス登録やアプリ全体の初期設定を置く場所 | `AppServiceProvider` で `MyUtil` を bind、HTTP 設定を追加 |
-| `config` | 各種設定ファイルを置く場所 | `auth.php`, `app.php`, `my.php` |
-| `resources` | 画面に関するファイルを置く場所 | `views/app.blade.php`, `js/app.js`, `js/Pages`, `js/Layouts`, `css/app.css` |
-| `resources/js/Components` | Page の中で使う小さな UI 部品を置く場所 | 今は未作成。将来の `UserCard.vue` など |
-| `routes` | URL と処理の対応表 | `web.php` |
+| ディレクトリ              | Laravel 12 デフォルト | 役割                                                              | このプロジェクトでの例                                                      |
+| ------------------------- | --------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `app/Http/Controllers`    | ⭕️                    | リクエストを受けて、何を返すか決める場所                          | `AuthController`, `UserPhotoController`, `ContainerController`              |
+| `app/Http/Middleware`     | ⭕️                    | 全ページ共通の処理や共通データを挟む場所                          | `HandleInertiaRequests` で `auth.user` と `flash.success` を共有            |
+| `app/Http/Requests`       | ⭕️                    | 入力値を整える・バリデーションする場所                            | `ContainerRequest` が画像ファイルや base64 を受ける                         |
+| `app/Models`              | ⭕️                    | データを扱う場所                                                  | `User`, `UserPhoto` が FileMaker データを扱う                               |
+| `app/Facades`             |                       | サービスクラスを Laravel らしい書き方で呼び出すための窓口         | `MyUtilFacade`                                                              |
+| `app/Mylib`               |                       | 小さな独自処理をまとめる場所                                      | `MyUtil` が FileMaker コンテナ URL を Laravel 用 URL に変換                 |
+| `app/Services`            |                       | ビジネスロジックが増えたときに、Controller から処理を分離する場所 | 今は未作成。たとえば `UserPhotoService` など                                |
+| `app/Support`             |                       | 汎用的な補助クラスを置く場所                                      | 今は未作成。共通変換、ヘルパー、値オブジェクト候補など                      |
+| `app/Providers`           | ⭕️                    | サービス登録やアプリ全体の初期設定を置く場所                      | `AppServiceProvider` で `MyUtil` を bind、HTTP 設定を追加                   |
+| `config`                  | ⭕️                    | 各種設定ファイルを置く場所                                        | `auth.php`, `app.php`, `my.php`                                             |
+| `resources`               | ⭕️                    | 画面に関するファイルを置く場所                                    | `views/app.blade.php`, `js/app.js`, `js/Pages`, `js/Layouts`, `css/app.css` |
+| `resources/js/Components` |                       | Page の中で使う小さな UI 部品を置く場所                           | 今は未作成。将来の `UserCard.vue` など                                      |
+| `routes`                  | ⭕️                    | URL と処理の対応表                                                | `web.php`                                                                   |
 
 ## 7. ファイルごとに初心者向けに言い換える
 
