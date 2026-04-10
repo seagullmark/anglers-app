@@ -137,14 +137,13 @@ Controller 側に独自変換を散らさないようにします。
 
 - FileMaker の container 生 URL を Vue に直接渡さない
 - Model accessor で表示用 URL に変換する
-- URL 変換は `MyUtil::getContainerUrl()` の流れにそろえる
-- 画像配信は `/container/{encrypted-path}` 経由にする
+- 画像配信の安定化方針は [`filemaker-container-image-stability-design.md`](/Users/seagull_macmini4/dockerenv/anglers/docs/filemaker-container-image-stability-design.md) を優先する
 - Vue 側は accessor で受けた URL をそのまま表示に使う
 
 ### 方針
 
 表示ロジックは
-`Model accessor -> MyUtil -> ContainerController -> Vue`
+`Model accessor -> Laravel route -> controller -> Vue`
 の流れで統一します。
 
 釣行画像でも、
