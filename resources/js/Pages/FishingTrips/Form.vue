@@ -233,7 +233,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3'
 import { useZiggyRoute } from '@/composables/useZiggyRoute'
 
@@ -254,16 +254,8 @@ const fileInput = ref(null)
 
 const isEdit = computed(() => props.mode === 'edit')
 const pageTitle = computed(() => (isEdit.value ? 'Edit Fishing Trip' : 'New Fishing Trip'))
-const submitLabel = computed(() => {
-  if (form.processing) {
-    return isEdit.value ? 'Saving...' : 'Creating...'
-  }
 
-  return isEdit.value ? 'Save Changes' : 'Create Trip'
-})
-const successMessage = computed(() => page.props.flash?.success ?? null)
-
-const form = useForm({
+const buildFormState = () => ({
   mod_id: props.trip.mod_id,
   trip_date: props.trip.trip_date ?? '',
   start_at: props.trip.start_at ?? '',
@@ -275,6 +267,17 @@ const form = useForm({
   photos: [],
   remove_photo_ids: []
 })
+
+const submitLabel = computed(() => {
+  if (form.processing) {
+    return isEdit.value ? 'Saving...' : 'Creating...'
+  }
+
+  return isEdit.value ? 'Save Changes' : 'Create Trip'
+})
+const successMessage = computed(() => page.props.flash?.success ?? null)
+
+const form = useForm(buildFormState())
 
 const deleteForm = useForm({
   mod_id: props.trip.mod_id
@@ -294,6 +297,25 @@ const clearSelectedFiles = () => {
     fileInput.value.value = ''
   }
 }
+
+watch(
+  () => [props.mode, props.trip.id, props.trip.mod_id],
+  () => {
+    const nextState = buildFormState()
+
+    form.defaults(nextState)
+    form.reset()
+    form.clearErrors()
+
+    deleteForm.defaults({
+      mod_id: props.trip.mod_id
+    })
+    deleteForm.reset()
+    deleteForm.clearErrors()
+
+    clearSelectedFiles()
+  }
+)
 
 const submit = () => {
   const options = {

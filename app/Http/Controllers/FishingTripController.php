@@ -54,6 +54,17 @@ class FishingTripController extends Controller
         ]);
     }
 
+    public function show(Request $request, string $fishing_trip): Response
+    {
+        $trip = $this->findFishingTripOrFail($fishing_trip);
+
+        $this->authorize('view', $trip);
+
+        return inertia('FishingTrips/Show', [
+            'trip' => $this->tripShowData($trip, (string) $request->user()->id),
+        ]);
+    }
+
     public function store(StoreFishingTripRequest $request): RedirectResponse
     {
         $this->authorize('create', FishingTrip::class);
@@ -184,6 +195,30 @@ class FishingTripController extends Controller
             'point_name' => $trip->point_name,
             'tackle_name' => $trip->tackle_name,
             'memo' => $trip->memo,
+            'photos' => $trip->photos()->get()
+                ->map(fn (FishingTripPhoto $photo) => [
+                    'id' => (string) $photo->id,
+                    'caption' => $photo->caption,
+                    'sort_order' => $photo->sort_order,
+                    'image_url' => $photo->image_url,
+                ])
+                ->values()
+                ->all(),
+        ];
+    }
+
+    private function tripShowData(FishingTrip $trip, string $currentUserId): array
+    {
+        return [
+            'id' => (string) $trip->id,
+            'trip_date' => $trip->trip_date_label,
+            'start_time' => $trip->start_time,
+            'end_time' => $trip->end_time,
+            'river_name' => $trip->river_name,
+            'point_name' => $trip->point_name,
+            'tackle_name' => $trip->tackle_name,
+            'memo' => $trip->memo,
+            'can_edit' => (string) $trip->user_id === $currentUserId,
             'photos' => $trip->photos()->get()
                 ->map(fn (FishingTripPhoto $photo) => [
                     'id' => (string) $photo->id,

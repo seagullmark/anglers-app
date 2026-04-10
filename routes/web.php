@@ -18,8 +18,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/profile-photo', [UserPhotoController::class, 'create'])
         ->name('user.profile-photo');
 
-    Route::resource('fishing-trips', FishingTripController::class)
-        ->except(['show']);
+    Route::resource('fishing-trips', FishingTripController::class);
 
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
 

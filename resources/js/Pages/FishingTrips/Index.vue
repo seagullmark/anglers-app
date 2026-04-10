@@ -7,7 +7,7 @@
         <p class="text-sm font-medium text-sky-600">Fishing Trips</p>
         <h1 class="mt-2 text-3xl font-semibold tracking-tight text-slate-900">Trip Log</h1>
         <p class="mt-3 max-w-2xl text-sm text-slate-600">
-          Review trips shared by everyone. Open your own cards when you want to edit them.
+          Review trips shared by everyone, then open a card to view the full details.
         </p>
       </div>
 
@@ -42,7 +42,7 @@
             :key="trip.id"
             class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
           >
-            <Link v-if="trip.can_edit" :href="route('fishing-trips.edit', trip.id)" class="block">
+            <Link :href="route('fishing-trips.show', trip.id)" class="block">
               <div
                 v-if="trip.cover_image_url"
                 class="aspect-4/3 overflow-hidden border-b border-slate-200 bg-slate-100"
@@ -63,9 +63,14 @@
                     <h2 class="text-lg font-semibold text-slate-900">
                       {{ trip.river_name }}
                     </h2>
-                    <span class="text-xs font-medium text-slate-500">
-                      {{ trip.photo_count }} photo<span v-if="trip.photo_count !== 1">s</span>
-                    </span>
+                    <div class="flex items-center gap-2">
+                      <span v-if="trip.can_edit" class="rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white">
+                        Yours
+                      </span>
+                      <span class="text-xs font-medium text-slate-500">
+                        {{ trip.photo_count }} photo<span v-if="trip.photo_count !== 1">s</span>
+                      </span>
+                    </div>
                   </div>
                   <p class="text-sm text-slate-600">{{ trip.point_name }}</p>
                 </div>
@@ -90,58 +95,6 @@
                 </p>
               </div>
             </Link>
-            <div v-else class="block">
-              <div
-                v-if="trip.cover_image_url"
-                class="aspect-4/3 overflow-hidden border-b border-slate-200 bg-slate-100"
-              >
-                <img :src="trip.cover_image_url" alt="" class="h-full w-full object-cover" />
-              </div>
-
-              <div
-                v-else
-                class="flex aspect-4/3 items-center justify-center border-b border-slate-200 bg-slate-100 text-sm font-medium text-slate-400"
-              >
-                No photo
-              </div>
-
-              <div class="space-y-4 p-5">
-                <div class="space-y-2">
-                  <div class="flex items-center justify-between gap-4">
-                    <h2 class="text-lg font-semibold text-slate-900">
-                      {{ trip.river_name }}
-                    </h2>
-                    <span class="text-xs font-medium text-slate-500">
-                      {{ trip.photo_count }} photo<span v-if="trip.photo_count !== 1">s</span>
-                    </span>
-                  </div>
-                  <p class="text-sm text-slate-600">{{ trip.point_name }}</p>
-                </div>
-
-                <dl class="grid gap-3 text-sm text-slate-600">
-                  <div>
-                    <dt class="font-medium text-slate-900">Date</dt>
-                    <dd class="mt-1">{{ trip.trip_date }}</dd>
-                  </div>
-                  <div>
-                    <dt class="font-medium text-slate-900">Time</dt>
-                    <dd class="mt-1">{{ trip.start_time }} - {{ trip.end_time }}</dd>
-                  </div>
-                  <div>
-                    <dt class="font-medium text-slate-900">Tackle</dt>
-                    <dd class="mt-1">{{ trip.tackle_name }}</dd>
-                  </div>
-                </dl>
-
-                <p v-if="trip.memo" class="line-clamp-3 text-sm text-slate-500">
-                  {{ trip.memo }}
-                </p>
-
-                <p class="text-xs font-medium text-slate-400">
-                  View only
-                </p>
-              </div>
-            </div>
           </article>
         </div>
 
