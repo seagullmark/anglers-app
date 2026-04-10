@@ -24,7 +24,7 @@ class FishingTripPolicyTest extends TestCase
         $this->assertTrue($policy->delete($user, $trip));
     }
 
-    public function test_non_owner_cannot_view_update_or_delete_trip(): void
+    public function test_non_owner_can_view_but_cannot_update_or_delete_trip(): void
     {
         $user = new User();
         $user->id = 'user-2';
@@ -34,7 +34,7 @@ class FishingTripPolicyTest extends TestCase
 
         $policy = new FishingTripPolicy();
 
-        $this->assertFalse($policy->view($user, $trip));
+        $this->assertTrue($policy->view($user, $trip));
         $this->assertFalse($policy->update($user, $trip));
         $this->assertFalse($policy->delete($user, $trip));
     }

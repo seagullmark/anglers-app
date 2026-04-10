@@ -14,7 +14,7 @@ class FishingTripPolicy
 
     public function view(User $user, FishingTrip $fishingTrip): bool
     {
-        return (string) $fishingTrip->user_id === (string) $user->id;
+        return ! empty($user->id);
     }
 
     public function create(User $user): bool

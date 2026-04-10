@@ -26,11 +26,10 @@ class FishingTripController extends Controller
 
         return inertia('FishingTrips/Index', [
             'trips' => Inertia::scroll(fn () => FishingTrip::query()
-                ->where('user_id', '==', (string) $request->user()->id)
                 ->orderBy('trip_date', 'desc')
                 ->orderBy('start_at', 'desc')
                 ->paginate(9)
-                ->through(fn (FishingTrip $trip) => $this->tripCardData($trip))),
+                ->through(fn (FishingTrip $trip) => $this->tripCardData($trip, (string) $request->user()->id))),
         ]);
     }
 
@@ -77,7 +76,7 @@ class FishingTripController extends Controller
     {
         $trip = $this->findFishingTripOrFail($fishing_trip);
 
-        $this->authorize('view', $trip);
+        $this->authorize('update', $trip);
 
         return inertia('FishingTrips/Form', [
             'mode' => 'edit',
@@ -152,10 +151,11 @@ class FishingTripController extends Controller
             ->firstOrFail();
     }
 
-    private function tripCardData(FishingTrip $trip): array
+    private function tripCardData(FishingTrip $trip, string $currentUserId): array
     {
         $photos = $trip->photos()->get();
         $coverPhoto = $photos->first();
+        $canEdit = (string) $trip->user_id === $currentUserId;
 
         return [
             'id' => (string) $trip->id,
@@ -168,6 +168,7 @@ class FishingTripController extends Controller
             'memo' => $trip->memo,
             'cover_image_url' => $coverPhoto?->image_url,
             'photo_count' => $photos->count(),
+            'can_edit' => $canEdit,
         ];
     }
 
