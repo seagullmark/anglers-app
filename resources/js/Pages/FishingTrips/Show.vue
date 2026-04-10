@@ -44,12 +44,19 @@
           :key="photo.id"
           class="overflow-hidden rounded-2xl border border-slate-200 bg-white"
         >
-          <div class="aspect-4/3 overflow-hidden bg-slate-100">
-            <img :src="photo.image_url" alt="" class="h-full w-full object-cover" />
-          </div>
+          <button
+            type="button"
+            class="block w-full text-left"
+            @click="openViewer(photo)"
+          >
+            <div class="aspect-4/3 overflow-hidden bg-slate-100">
+              <img :src="photo.image_url" alt="" class="h-full w-full object-cover" />
+            </div>
+          </button>
           <figcaption class="space-y-1 p-4">
             <p class="text-xs font-medium text-slate-500">Photo {{ photo.sort_order }}</p>
             <p v-if="photo.caption" class="text-sm text-slate-600">{{ photo.caption }}</p>
+            <p class="text-xs text-slate-500">Click to view the full image.</p>
           </figcaption>
         </figure>
       </div>
@@ -99,10 +106,44 @@
       </div>
     </section>
   </div>
+
+  <div
+    v-if="viewerPhoto"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 px-4 py-6"
+    @click.self="closeViewer"
+  >
+    <div class="w-full max-w-6xl space-y-4">
+      <div class="flex items-center justify-between gap-4 text-white">
+        <div>
+          <p class="text-sm font-medium">Photo {{ viewerPhoto.sort_order }}</p>
+          <p v-if="viewerPhoto.caption" class="mt-1 text-sm text-slate-300">
+            {{ viewerPhoto.caption }}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="inline-flex items-center justify-center rounded-xl border border-white/30 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+          @click="closeViewer"
+        >
+          Close
+        </button>
+      </div>
+
+      <div class="flex max-h-[80vh] items-center justify-center overflow-hidden rounded-2xl bg-slate-900">
+        <img
+          :src="viewerPhoto.image_url"
+          alt=""
+          class="max-h-[80vh] w-full object-contain"
+        />
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { Head, Link } from '@inertiajs/vue3'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useZiggyRoute } from '@/composables/useZiggyRoute'
 
 defineProps({
@@ -113,4 +154,27 @@ defineProps({
 })
 
 const route = useZiggyRoute()
+const viewerPhoto = ref(null)
+
+const openViewer = (photo) => {
+  viewerPhoto.value = photo
+}
+
+const closeViewer = () => {
+  viewerPhoto.value = null
+}
+
+const onKeydown = (event) => {
+  if (event.key === 'Escape') {
+    closeViewer()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeydown)
+})
 </script>
