@@ -50,7 +50,7 @@ FileMaker テーブル名は `fishing_trips` を想定します。
 | `river_name` | Text | ○ | 河川名 |
 | `point_name` | Text | ○ | ポイント名 |
 | `tackle_name` | Text | ○ | 使用タックル |
-| `memo` | Text |  | メモ、釣行記録 |
+| `memo` | Text | | メモ、釣行記録 |
 | `created_at` | Timestamp | ○ | 作成日時 |
 | `updated_at` | Timestamp | ○ | 更新日時 |
 
@@ -69,12 +69,12 @@ FileMaker テーブル名は `fishing_trip_photos` を想定します。
 | `id` | Text | ○ | 画像レコードの主キー。カラム名は Laravel デフォルトに合わせ、値は `Get(UUID)` で採番する想定 |
 | `fishing_trip_id` | Text | ○ | 親の `fishing_trips.id` とつなぐための外部キー |
 | `image` | Container | ○ | 魚の画像本体 |
-| `caption` | Text |  | 画像の説明文 |
+| `caption` | Text | | 画像の説明文 |
 | `sort_order` | Number | ○ | 一覧表示用の並び順 |
 | `created_at` | Timestamp | ○ | 作成日時 |
 | `updated_at` | Timestamp | ○ | 更新日時 |
 
-### この設計で押さえたいこと
+### 釣行画像の設計で押さえたいこと
 
 - 画像を複数登録したいので、親テーブルに `Container` を増やさない
 - `sort_order` を持たせると、一覧の表示順を制御しやすい

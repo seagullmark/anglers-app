@@ -12,6 +12,17 @@
 
     <div class="grid gap-6 md:grid-cols-2">
       <Link
+        :href="route('fishing-trips.index')"
+        class="block rounded-2xl border border-slate-200 bg-slate-50 p-6 transition hover:border-sky-300 hover:bg-sky-50"
+      >
+        <p class="text-sm font-medium text-sky-600">Fishing Trips</p>
+        <h2 class="mt-2 text-xl font-semibold text-slate-900">Trip Log</h2>
+        <p class="mt-3 text-sm text-slate-600">
+          Create, edit, and review your uploaded fishing trips.
+        </p>
+      </Link>
+
+      <Link
         :href="route('user.profile-photo')"
         class="block rounded-2xl border border-slate-200 bg-slate-50 p-6 transition hover:border-sky-300 hover:bg-sky-50"
       >

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FishingTripController;
 use App\Http\Controllers\UserPhotoController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/user/profile-photo', [UserPhotoController::class, 'create'])
         ->name('user.profile-photo');
+
+    Route::resource('fishing-trips', FishingTripController::class)
+        ->except(['show']);
 
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
 
