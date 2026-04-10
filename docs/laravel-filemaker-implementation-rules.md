@@ -129,7 +129,6 @@ Controller 側に独自変換を散らさないようにします。
 ### 参照元
 
 - [`UserPhoto.php`](/Users/seagull_macmini4/dockerenv/anglers/app/Models/UserPhoto.php)
-- [`MyUtil.php`](/Users/seagull_macmini4/dockerenv/anglers/app/Mylib/MyUtil.php)
 - [`ContainerController.php`](/Users/seagull_macmini4/dockerenv/anglers/app/Http/Controllers/ContainerController.php)
 - [`HandleInertiaRequests.php`](/Users/seagull_macmini4/dockerenv/anglers/app/Http/Middleware/HandleInertiaRequests.php)
 

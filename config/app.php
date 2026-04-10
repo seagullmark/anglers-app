@@ -124,15 +124,4 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | エイリアスを登録しておくことで　\MyUtil:: で呼び出せる
-    |--------------------------------------------------------------------------
-    |
-    */
-    // 'aliases' => Facade::defaultAliases()->merge([
-    //     'MyUtil' => App\Facades\MyUtilFacade::class,
-    // ])->toArray(),
-
 ];

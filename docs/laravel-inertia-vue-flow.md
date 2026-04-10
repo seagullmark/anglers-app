@@ -162,21 +162,20 @@ flowchart TD
     A["MainLayout.vue / ProfilePhoto.vue"] --> B["usePage().props.auth.user.thumbnail"]
     B --> C["HandleInertiaRequests.php"]
     C --> D["User Model"]
-    D --> E["photo() relation"]
-    E --> F["UserPhoto Model"]
-    F --> G["thumbnail accessor"]
-    G --> H["App\\Mylib\\MyUtil::getContainerUrl()"]
-    H --> I["/container/{encrypted-path}"]
-    I --> J["ContainerController@getImage"]
-    J --> K["実際の画像レスポンス"]
+    D --> E["thumbnail accessor"]
+    E --> F["/user-photos/{id}/image"]
+    F --> G["ContainerController@showUserPhoto"]
+    G --> H["UserPhoto Model"]
+    H --> I["最新の container 参照を取得"]
+    I --> J["実際の画像レスポンス"]
 ```
 
 ### ここで大事なこと
 
 - Vue は FileMaker の生 URL を知らない
 - `thumbnail` は Model の accessor で整形される
-- `MyUtil` は URL を暗号化して Laravel の `container` ルートに変換する
-- `ContainerController` が最終的に画像を取りにいって返す
+- `thumbnail` は安定したアプリ内 route に変換される
+- `ContainerController` が毎回最新の container 参照を解決して返す
 
 ## 6. 指定されたディレクトリの役割
 
@@ -186,11 +185,9 @@ flowchart TD
 | `app/Http/Middleware`     | ⭕️                    | 全ページ共通の処理や共通データを挟む場所                          | `HandleInertiaRequests` で `auth.user` と `flash.success` を共有            |
 | `app/Http/Requests`       | ⭕️                    | 入力値を整える・バリデーションする場所                            | `ContainerRequest` が画像ファイルや base64 を受ける                         |
 | `app/Models`              | ⭕️                    | データを扱う場所                                                  | `User`, `UserPhoto` が FileMaker データを扱う                               |
-| `app/Facades`             |                       | サービスクラスを Laravel らしい書き方で呼び出すための窓口         | `MyUtilFacade`                                                              |
-| `app/Mylib`               |                       | 小さな独自処理をまとめる場所                                      | `MyUtil` が FileMaker コンテナ URL を Laravel 用 URL に変換                 |
 | `app/Services`            |                       | ビジネスロジックが増えたときに、Controller から処理を分離する場所 | 今は未作成。たとえば `UserPhotoService` など                                |
 | `app/Support`             |                       | 汎用的な補助クラスを置く場所                                      | 今は未作成。共通変換、ヘルパー、値オブジェクト候補など                      |
-| `app/Providers`           | ⭕️                    | サービス登録やアプリ全体の初期設定を置く場所                      | `AppServiceProvider` で `MyUtil` を bind、HTTP 設定を追加                   |
+| `app/Providers`           | ⭕️                    | サービス登録やアプリ全体の初期設定を置く場所                      | `AppServiceProvider` で HTTP 設定を追加                                     |
 | `config`                  | ⭕️                    | 各種設定ファイルを置く場所                                        | `auth.php`, `app.php`, `my.php`                                             |
 | `resources`               | ⭕️                    | 画面に関するファイルを置く場所                                    | `views/app.blade.php`, `js/app.js`, `js/Pages`, `js/Layouts`, `css/app.css` |
 | `resources/js/Components` |                       | Page の中で使う小さな UI 部品を置く場所                           | 今は未作成。将来の `UserCard.vue` など                                      |
@@ -222,16 +219,6 @@ flowchart TD
 
 - FileMaker のデータを Laravel から触りやすくする
 - relation や accessor もここに置く
-
-### `app/Facades/MyUtilFacade.php`
-
-- `MyUtil` を Facade 経由で呼ぶための入口
-- 「クラスを直接 new する」のではなく、Laravel の仕組みに乗せて呼び出したいときに使う
-
-### `app/Mylib/MyUtil.php`
-
-- Model や Controller にベタ書きしたくない小さな共通処理を分ける
-- 今回は FileMaker コンテナ URL を安全なアプリ用 URL に変換している
 
 ### `app/Services`
 
@@ -331,7 +318,7 @@ flowchart TD
 - 「HTTP リクエストを受ける」は `UserPhotoController`
 - 「ファイル形式を確認する」は `ContainerRequest`
 - 「画像を 128x128 に加工して保存する」が今後もっと複雑になるなら `UserPhotoService`
-- 「FileMaker の URL を安全な URL に変換する」は `MyUtil`
+- 「最新の container 参照から画像を返す」は `ContainerController`
 
 ## 11. このプロジェクトで特にハマりやすい点
 

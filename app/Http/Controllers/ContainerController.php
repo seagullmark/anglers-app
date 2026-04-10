@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FishingTrip;
+use App\Models\FishingTripPhoto;
+use App\Models\UserPhoto;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 
 class ContainerController extends Controller
@@ -18,9 +20,44 @@ class ContainerController extends Controller
         // 'svg'  => 'image/svg+xml',
     );
 
-    public function getImage(Request $request)
+    public function showUserPhoto(Request $request, string $user_photo)
     {
-        $path = Crypt::decryptString($request->route('path'));
+        $photo = UserPhoto::query()
+            ->where('id', '==', $user_photo)
+            ->firstOrFail();
+
+        $this->authorize('view', $photo);
+
+        return $this->proxyImage(
+            $this->resolveContainerPath($photo, ['thumbnail', 'photo']),
+        );
+    }
+
+    public function showFishingTripPhoto(Request $request, string $fishing_trip_photo)
+    {
+        $photo = FishingTripPhoto::query()
+            ->where('id', '==', $fishing_trip_photo)
+            ->firstOrFail();
+
+        $trip = FishingTrip::query()
+            ->where('id', '==', $photo->fishing_trip_id)
+            ->firstOrFail();
+
+        $this->authorize('view', $trip);
+
+        return $this->proxyImage(
+            $this->resolveContainerPath($photo, ['image']),
+        );
+    }
+
+    private function proxyImage(?string $path)
+    {
+        if (blank($path)) {
+            return response()
+                ->json(['error' => 'Image not available.'], 404)
+                ->header('X-Content-Type-Options', 'nosniff');
+        }
+
         $info = pathinfo($path);
         $ext = explode('?', strtolower(@$info['extension']));
         $ext = $ext[0];
@@ -87,5 +124,18 @@ class ContainerController extends Controller
         return response($body, 200)
             ->header('Content-Type', $content_type)
             ->header('X-Content-Type-Options', 'nosniff');
+    }
+
+    private function resolveContainerPath(object $model, array $fields): ?string
+    {
+        foreach ($fields as $field) {
+            $path = $model->getRawOriginal($field) ?? $model->getAttributeFromArray($field);
+
+            if (filled($path)) {
+                return $path;
+            }
+        }
+
+        return null;
     }
 }

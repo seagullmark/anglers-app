@@ -13,7 +13,6 @@ use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Notifications\Notifiable;
 use GearboxSolutions\EloquentFileMaker\Database\Eloquent\FMModel;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use App\Facades\MyUtilFacade;
 
 use Illuminate\Database\Eloquent\Relations\hasOne;
 
@@ -70,7 +69,9 @@ class User extends FMModel implements
     protected function thumbnail(): Attribute
     {
         return Attribute::make(
-            get: fn(string|null $value) => MyUtilFacade::getContainerUrl($value),
+            get: fn(string|null $value, array $attributes) => filled($attributes['image_id'] ?? null)
+                ? route('user-photos.image', $attributes['image_id'])
+                : null,
         );
     }
 

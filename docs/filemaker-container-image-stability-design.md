@@ -4,10 +4,8 @@
 FileMaker の container 画像が
 ブラウザの戻る・進むでリンク切れし、
 `502 Bad Gateway` になる問題に対する
-設計方針をまとめたものです。
-
-今回は設計のみを残し、
-実装は別ブランチで行います。
+設計方針と、
+その後の実装内容をまとめたものです。
 
 ## 1. 何が起きているか
 
@@ -60,6 +58,41 @@ Claris の公開情報と現在の挙動から見ると、
 
 ## 3. この問題に対する判断
 
+### 補足: なぜ最初はこの設計にしたのか
+
+最初に
+`MyUtil + /container/{path}` の形を採った理由は、
+画像表示を
+`どのプロジェクトでも使える汎用処理`
+にしたかったからです。
+
+狙いとしては、
+
+- FileMaker から返ってきた container URL を受け取る
+- それをアプリ用 URL に包む
+- あとは Vue から `<img :src>` するだけにする
+
+という共通部品を 1 つ作っておけば、
+別プロジェクトでも
+コードをコピペするだけで再利用しやすい、
+という考え方でした。
+
+この考え方自体は間違っていません。
+
+ただし、
+汎用化の対象を
+`生の FileMaker URL を受け取って返す処理`
+に置いたことで、
+FileMaker 側の一時参照の性質まで
+そのまま引きずってしまいました。
+
+その結果、
+
+- URL は汎用化できた
+- でも参照の安定性は担保できなかった
+
+という状態になりました。
+
 ### 採用しない方針
 
 #### FMS のセキュリティレベルを落とす
@@ -91,6 +124,12 @@ FileMaker の container 生 URL を、
 
 代わりに、
 アプリ側で安定した route を持ちます。
+
+つまり、
+`URL 文字列をそのまま共通化する`
+のではなく、
+`Laravel 側で安定配信する設計パターン`
+を共通化する方へ切り替えます。
 
 ### 具体像
 
@@ -176,9 +215,9 @@ cookie や session に強く依存して不安定なら、
 
 実装時に主に触る候補は次のとおりです。
 
-- [`MyUtil.php`](/Users/seagull_macmini4/dockerenv/anglers/app/Mylib/MyUtil.php)
 - [`ContainerController.php`](/Users/seagull_macmini4/dockerenv/anglers/app/Http/Controllers/ContainerController.php)
 - [`UserPhoto.php`](/Users/seagull_macmini4/dockerenv/anglers/app/Models/UserPhoto.php)
+- [`User.php`](/Users/seagull_macmini4/dockerenv/anglers/app/Models/User.php)
 - [`FishingTripPhoto.php`](/Users/seagull_macmini4/dockerenv/anglers/app/Models/FishingTripPhoto.php)
 - `routes/web.php`
 - 必要なら画像配信用の専用 controller
@@ -198,6 +237,127 @@ cookie や session に強く依存して不安定なら、
 - FileMaker の生 container URL をブラウザへ長く持たせない
 - モデル ID ベースの安定 route に置き換える
 - 画像取得は Laravel 側で毎回最新参照を解決する
+
+## 11. 実装後メモ
+
+この設計に対して、
+実装では次の変更を入れました。
+
+### route
+
+- `user-photos/{user_photo}/image`
+- `fishing-trip-photos/{fishing_trip_photo}/image`
+
+を追加しました。
+
+旧 `/container/{path}` route は削除しました。
+
+### Model accessor
+
+- `UserPhoto::thumbnail`
+- `User::thumbnail`
+- `FishingTripPhoto::image_url`
+
+は、FileMaker の生 URL ではなく、
+`route(...)` で作る安定 URL を返すように変更しました。
+
+### 画像配信 controller
+
+`ContainerController` は、
+暗号化された外部 URL を復号して取りに行く役割をやめ、
+`モデル ID -> 最新の container 参照 -> proxy 応答`
+という役割に変えました。
+
+具体的には次の 2 メソッドです。
+
+- `showUserPhoto`
+- `showFishingTripPhoto`
+
+### 認可
+
+- `UserPhoto` は、`user_id` がログインユーザー本人かを確認して返します
+- `FishingTripPhoto` は、親 `FishingTrip` を取得して `Policy::view` を通して返します
+
+つまり、
+画像 route も通常の画面表示と同じく、
+Laravel 側の認可境界の中で扱う形にしました。
+
+### shared props
+
+ヘッダー画像の共有データも、
+`HandleInertiaRequests` で
+`$request->user()->thumbnail`
+を返す形にそろえました。
+
+これで、
+プロフィール画像表示も
+釣行画像表示も、
+同じ「安定 route 経由」の流れになります。
+
+### 削除したもの
+
+不要になったため、次は削除しました。
+
+- `MyUtil`
+- `MyUtilFacade`
+- `AppServiceProvider` の `MyUtil` bind
+- `config/app.php` に残っていた `MyUtil` 用コメント
+
+### 実装後の構成
+
+実装後の画像表示フローはこうです。
+
+1. Model accessor が安定 route を返す
+2. Vue はその URL を `<img :src>` に使う
+3. route ごとに Laravel が model を取得する
+4. 認可を確認する
+5. その時点の最新 container 参照を取り出す
+6. Laravel が proxy して画像を返す
+
+### この実装で狙っていること
+
+- ブラウザ履歴に FileMaker の一時参照を直接残さない
+- 戻る・進む時にも、毎回最新参照を引き直す
+- FMS 側のセキュリティ設定を緩めない
+- `UserPhoto` と `FishingTripPhoto` を同じ設計で扱う
+
+### 汎用化の考え方をどう変えたか
+
+今回やめたのは、
+`汎用化そのもの`
+ではありません。
+
+やめたのは、
+`生の FileMaker container URL をそのまま受ける汎用 proxy`
+です。
+
+代わりに、
+次のパターンを汎用化対象として扱います。
+
+1. model accessor が `resource.image` route を返す
+2. image route で model を引き直す
+3. 認可を通す
+4. 最新の container 参照を解決する
+5. Laravel が proxy 応答する
+
+この形なら、
+別プロジェクトでも
+
+- `UserPhoto`
+- `ProductPhoto`
+- `ArticleImage`
+- `FishingTripPhoto`
+
+のように、
+対象 model と route 名を差し替えるだけで
+使い回しやすくなります。
+
+つまり、
+`URL をコピペする汎用化`
+から
+`Laravel 流儀の安全な画像配信パターンをコピペできる汎用化`
+へ考え方を変えた、
+というのが今回の整理です。
 
 ## 参考
 

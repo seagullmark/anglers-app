@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Facades\MyUtilFacade;
 use GearboxSolutions\EloquentFileMaker\Database\Eloquent\FMModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -36,7 +35,9 @@ class FishingTripPhoto extends FMModel
     protected function imageUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => MyUtilFacade::getContainerUrl($this->getRawOriginal('image') ?? $this->getAttributeFromArray('image')),
+            get: fn () => filled($this->id)
+                ? route('fishing-trip-photos.image', $this->id)
+                : null,
         );
     }
 }
