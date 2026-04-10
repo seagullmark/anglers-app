@@ -167,6 +167,7 @@ class FishingTripController extends Controller
         $photos = $trip->photos()->get();
         $coverPhoto = $photos->first();
         $canEdit = (string) $trip->user_id === $currentUserId;
+        $owner = $this->ownerData($trip);
 
         return [
             'id' => (string) $trip->id,
@@ -180,6 +181,7 @@ class FishingTripController extends Controller
             'cover_image_url' => $coverPhoto?->image_url,
             'photo_count' => $photos->count(),
             'can_edit' => $canEdit,
+            'owner' => $owner,
         ];
     }
 
@@ -209,6 +211,8 @@ class FishingTripController extends Controller
 
     private function tripShowData(FishingTrip $trip, string $currentUserId): array
     {
+        $owner = $this->ownerData($trip);
+
         return [
             'id' => (string) $trip->id,
             'trip_date' => $trip->trip_date_label,
@@ -219,6 +223,7 @@ class FishingTripController extends Controller
             'tackle_name' => $trip->tackle_name,
             'memo' => $trip->memo,
             'can_edit' => (string) $trip->user_id === $currentUserId,
+            'owner' => $owner,
             'photos' => $trip->photos()->get()
                 ->map(fn (FishingTripPhoto $photo) => [
                     'id' => (string) $photo->id,
@@ -228,6 +233,29 @@ class FishingTripController extends Controller
                 ])
                 ->values()
                 ->all(),
+        ];
+    }
+
+    private function ownerData(FishingTrip $trip): array
+    {
+        $owner = $trip->user()->first();
+
+        if (! $owner) {
+            return [
+                'id' => (string) $trip->user_id,
+                'name' => null,
+                'email' => null,
+                'label' => (string) $trip->user_id,
+            ];
+        }
+
+        $label = $owner->name ?: $owner->email ?: (string) $owner->id;
+
+        return [
+            'id' => (string) $owner->id,
+            'name' => $owner->name,
+            'email' => $owner->email,
+            'label' => $label,
         ];
     }
 

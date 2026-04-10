@@ -73,6 +73,9 @@
                     </div>
                   </div>
                   <p class="text-sm text-slate-600">{{ trip.point_name }}</p>
+                  <p class="text-xs font-medium text-slate-500">
+                    Posted by {{ trip.owner.label }}
+                  </p>
                 </div>
 
                 <dl class="grid gap-3 text-sm text-slate-600">

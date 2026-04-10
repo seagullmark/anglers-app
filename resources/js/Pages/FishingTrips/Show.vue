@@ -11,6 +11,9 @@
         <p class="mt-3 max-w-2xl text-sm text-slate-600">
           Review the full trip details and all uploaded photos.
         </p>
+        <p class="mt-2 text-sm font-medium text-slate-500">
+          Posted by {{ trip.owner.label }}
+        </p>
       </div>
 
       <div class="flex flex-col gap-3 sm:flex-row">
@@ -97,6 +100,10 @@
           <div>
             <dt class="font-medium text-slate-900">Point</dt>
             <dd class="mt-1">{{ trip.point_name }}</dd>
+          </div>
+          <div>
+            <dt class="font-medium text-slate-900">Posted by</dt>
+            <dd class="mt-1">{{ trip.owner.label }}</dd>
           </div>
           <div>
             <dt class="font-medium text-slate-900">Tackle</dt>
