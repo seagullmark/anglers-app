@@ -163,7 +163,7 @@
             :key="photo.id"
             class="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"
           >
-            <div class="aspect-[4/3] overflow-hidden bg-slate-100">
+            <div class="aspect-4/3 overflow-hidden bg-slate-100">
               <img :src="photo.image_url" alt="" class="h-full w-full object-cover" />
             </div>
             <div class="space-y-2 p-4">

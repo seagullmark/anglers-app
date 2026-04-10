@@ -45,14 +45,14 @@
             <Link :href="route('fishing-trips.edit', trip.id)" class="block">
               <div
                 v-if="trip.cover_image_url"
-                class="aspect-[4/3] overflow-hidden border-b border-slate-200 bg-slate-100"
+                class="aspect-4/3 overflow-hidden border-b border-slate-200 bg-slate-100"
               >
                 <img :src="trip.cover_image_url" alt="" class="h-full w-full object-cover" />
               </div>
 
               <div
                 v-else
-                class="flex aspect-[4/3] items-center justify-center border-b border-slate-200 bg-slate-100 text-sm font-medium text-slate-400"
+                class="flex aspect-4/3 items-center justify-center border-b border-slate-200 bg-slate-100 text-sm font-medium text-slate-400"
               >
                 No photo
               </div>
