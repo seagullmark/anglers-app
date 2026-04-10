@@ -92,7 +92,83 @@ Seeder は
 ./vendor/bin/sail artisan fm:seed:fishing-trips --user-email=test@example.com
 ```
 
-## 5. 画像はダミーで自動生成する
+## 5. ユーザーサンプルデータ投入コマンド
+
+ログイン確認や、
+釣行の所有者を増やしたいときのために、
+ユーザー作成用 command も用意しています。
+
+参照:
+
+- [`FmSeedUsersCommand.php`](/Users/seagull_macmini4/dockerenv/anglers/app/Console/Commands/FmSeedUsersCommand.php)
+- [`SampleUserFactory.php`](/Users/seagull_macmini4/dockerenv/anglers/app/Support/SampleUserFactory.php)
+
+### 基本コマンド
+
+```bash
+./vendor/bin/sail artisan fm:seed:users
+```
+
+### できること
+
+- デフォルトで user を `3人` 作る
+- `--count` で人数を変えられる
+- `--password` で全員共通のログイン password を指定できる
+- `--email-prefix` と `--email-domain` で email の形式を変えられる
+- `--name-prefix` で表示名の接頭辞を変えられる
+
+### 例
+
+```bash
+./vendor/bin/sail artisan fm:seed:users --count=5 --password=laravel
+./vendor/bin/sail artisan fm:seed:users --count=10 --password=secret123
+./vendor/bin/sail artisan fm:seed:users --count=3 --email-domain=example.com
+```
+
+### 作られるデータ
+
+例えば
+
+```bash
+./vendor/bin/sail artisan fm:seed:users --count=3 --password=laravel
+```
+
+を実行すると、
+次のような user が作られます。
+
+- `sample-user-<timestamp>-01@example.test`
+- `sample-user-<timestamp>-02@example.test`
+- `sample-user-<timestamp>-03@example.test`
+
+password は全員 `laravel` です。
+
+### 重要
+
+`users` は既存の FileMaker 認証テーブルです。
+
+そのため、
+この command は Laravel 的な field を全部書こうとはせず、
+最小限の field だけを保存します。
+
+現在書き込むのは次の 3 つです。
+
+- `name`
+- `email`
+- `password`
+
+つまり、
+
+- `id`
+- `email_verified_at`
+- `remember_token`
+
+はこの command では触りません。
+
+理由は、
+既存の FileMaker `users` layout で
+編集不可の field を無理に更新しないためです。
+
+## 6. 画像はダミーで自動生成する
 
 この command の画像は、
 手元の写真ファイルを使わなくてもよいように、
@@ -109,7 +185,7 @@ command 側でダミー JPEG を自動生成します。
 実写真を使うための仕組みではなく、
 あくまで確認用の placeholder 画像です。
 
-## 6. 何度実行してもよい
+## 7. 何度実行してもよい
 
 この command は
 `追加投入`
@@ -131,7 +207,7 @@ command 側でダミー JPEG を自動生成します。
 このように何度も流して、
 件数を増やせます。
 
-## 7. 同じデータではないが、パターンは繰り返す
+## 8. 同じデータではないが、パターンは繰り返す
 
 現在のサンプル生成は、
 毎回完全ランダムではありません。
@@ -165,7 +241,7 @@ command 側でダミー JPEG を自動生成します。
 
 のように拡張できます。
 
-## 8. 今回 command を採用した理由
+## 9. 今回 command を採用した理由
 
 今回の教材では、
 目的が
