@@ -42,8 +42,8 @@ FileMaker テーブル名は `fishing_trips` を想定します。
 
 | フィールド名 | 型 | 必須 | 用途 |
 | --- | --- | ---: | --- |
-| `trip_uuid` | Text | ○ | 釣行の主キー。`Get(UUID)` で採番する想定 |
-| `owner_user_id` | Text | ○ | その釣行の所有者ユーザー ID |
+| `id` | Text | ○ | 釣行の主キー。カラム名は Laravel デフォルトに合わせ、値は `Get(UUID)` で採番する想定 |
+| `user_id` | Text | ○ | その釣行の所有者ユーザー ID |
 | `trip_date` | Date | ○ | 釣行日 |
 | `start_at` | Timestamp | ○ | 釣行開始日時 |
 | `end_at` | Timestamp | ○ | 釣行終了日時 |
@@ -56,7 +56,7 @@ FileMaker テーブル名は `fishing_trips` を想定します。
 
 ### この設計で押さえたいこと
 
-- `owner_user_id` は認可のために必要
+- `user_id` は認可のために必要
 - `river_name`、`point_name`、`tackle_name` は最初は `Text` で十分
 - `trip_date` と `start_at` と `end_at` を分けることで、一覧表示と入力の両方が扱いやすい
 
@@ -66,8 +66,8 @@ FileMaker テーブル名は `fishing_trip_photos` を想定します。
 
 | フィールド名 | 型 | 必須 | 用途 |
 | --- | --- | ---: | --- |
-| `photo_uuid` | Text | ○ | 画像レコードの主キー。`Get(UUID)` で採番する想定 |
-| `trip_uuid` | Text | ○ | 親の `fishing_trips` とつなぐための外部キー |
+| `id` | Text | ○ | 画像レコードの主キー。カラム名は Laravel デフォルトに合わせ、値は `Get(UUID)` で採番する想定 |
+| `fishing_trip_id` | Text | ○ | 親の `fishing_trips.id` とつなぐための外部キー |
 | `image` | Container | ○ | 魚の画像本体 |
 | `caption` | Text |  | 画像の説明文 |
 | `sort_order` | Number | ○ | 一覧表示用の並び順 |
@@ -85,13 +85,13 @@ FileMaker テーブル名は `fishing_trip_photos` を想定します。
 この教材では
 「ユーザー自身の釣行だけ編集・削除できる」
 という設計にしたいので、
-`FishingTrip` に `owner_user_id` が必要です。
+`FishingTrip` に `user_id` が必要です。
 
 判定の基本は次の形です。
 
 - 一覧表示: ログイン中ユーザーの釣行だけ取得する
 - 詳細表示: 必要なら `Policy` で閲覧可否を判定する
-- 更新、削除: `owner_user_id === ログイン中ユーザー ID` を `Policy` で判定する
+- 更新、削除: `user_id === ログイン中ユーザー ID` を `Policy` で判定する
 
 つまり、認可の中心は `FishingTrip` 側に置きます。
 画像の更新や削除も、最終的には親の釣行にぶら下がるデータとして扱うと整理しやすくなります。
@@ -154,8 +154,8 @@ FileMaker テーブル名は `fishing_trip_photos` を想定します。
 
 最小フィールドは次の考え方で十分です。
 
-- 釣行本体: `所有者`、`日付`、`開始`、`終了`、`河川`、`ポイント`、`タックル`
-- 画像: `親の釣行 ID`、`画像本体`、`並び順`
+- 釣行本体: `id`、`user_id`、`日付`、`開始`、`終了`、`河川`、`ポイント`、`タックル`
+- 画像: `id`、`fishing_trip_id`、`画像本体`、`並び順`
 
 この形にしておくと、次の段階で
 Laravel 側の `Model`、`Policy`、`Controller`、`Request`

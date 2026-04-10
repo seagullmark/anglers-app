@@ -251,8 +251,8 @@ return [
             'action' => 'create_table',
             'table' => 'fishing_trips',
             'fields' => [
-                ['name' => 'trip_uuid', 'type' => 'string', 'length' => 36, 'primary' => true],
-                ['name' => 'owner_user_id', 'type' => 'string', 'length' => 36],
+                ['name' => 'id', 'type' => 'string', 'length' => 36, 'primary' => true],
+                ['name' => 'user_id', 'type' => 'string', 'length' => 36],
                 ['name' => 'trip_date', 'type' => 'date'],
                 ['name' => 'start_at', 'type' => 'timestamp'],
                 ['name' => 'end_at', 'type' => 'timestamp'],
@@ -267,14 +267,14 @@ return [
         [
             'action' => 'create_index',
             'table' => 'fishing_trips',
-            'field' => 'owner_user_id',
+            'field' => 'user_id',
         ],
         [
             'action' => 'create_table',
             'table' => 'fishing_trip_photos',
             'fields' => [
-                ['name' => 'photo_uuid', 'type' => 'string', 'length' => 36, 'primary' => true],
-                ['name' => 'trip_uuid', 'type' => 'string', 'length' => 36],
+                ['name' => 'id', 'type' => 'string', 'length' => 36, 'primary' => true],
+                ['name' => 'fishing_trip_id', 'type' => 'string', 'length' => 36],
                 ['name' => 'image', 'type' => 'container'],
                 ['name' => 'caption', 'type' => 'string', 'length' => 500],
                 ['name' => 'sort_order', 'type' => 'int'],
