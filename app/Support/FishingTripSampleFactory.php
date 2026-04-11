@@ -131,8 +131,6 @@ class FishingTripSampleFactory
         $temporaryPath = tempnam(sys_get_temp_dir(), 'fm-trip-photo-');
 
         if ($temporaryPath === false) {
-            imagedestroy($image);
-
             throw new RuntimeException('Failed to allocate a temporary file for the sample image.');
         }
 
@@ -140,13 +138,11 @@ class FishingTripSampleFactory
 
         if (! rename($temporaryPath, $path)) {
             @unlink($temporaryPath);
-            imagedestroy($image);
 
             throw new RuntimeException('Failed to prepare the sample image path.');
         }
 
         imagejpeg($image, $path, 88);
-        imagedestroy($image);
 
         return $path;
     }
