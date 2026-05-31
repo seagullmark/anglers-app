@@ -23,6 +23,30 @@ Route::get('/fm-test', function () {
     }
 });
 
+Route::get('/fm-login-test', function () {
+
+    try {
+        $response = Http::withBasicAuth(
+            env('FM_USER'),
+            env('FM_PASSWORD')
+        )->post(
+            'https://billion-vendors-settings-referrals.trycloudflare.com/fmi/data/vLatest/databases/DB名/sessions'
+        );
+
+        return response()->json([
+            'status' => $response->status(),
+            'body'   => $response->json(),
+            'raw'    => $response->body(),
+        ]);
+    } catch (\Throwable $e) {
+
+        return response()->json([
+            'error' => $e->getMessage(),
+            'class' => get_class($e),
+        ], 500);
+    }
+});
+
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'create'])->name('login');
     Route::post('/login', [AuthController::class, 'store'])->name('login.store');
