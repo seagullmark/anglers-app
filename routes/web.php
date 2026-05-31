@@ -6,6 +6,33 @@ use App\Http\Controllers\FishingTripController;
 use App\Http\Controllers\UserPhotoController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/fm-eloquent-test', function () {
+
+    $start = microtime(true);
+
+    try {
+
+        $user = User::where(
+            'email',
+            'nishino@hoge.com'
+        )->first();
+
+        return response()->json([
+            'seconds' => microtime(true) - $start,
+            'found'   => ! is_null($user),
+            'user'    => $user,
+        ]);
+    } catch (\Throwable $e) {
+
+        return response()->json([
+            'seconds' => microtime(true) - $start,
+            'error'   => $e->getMessage(),
+            'class'   => get_class($e),
+            'trace'   => $e->getTraceAsString(),
+        ], 500);
+    }
+});
+
 Route::get('/fm-test', function () {
     try {
         $response = Http::timeout(10)->get(
