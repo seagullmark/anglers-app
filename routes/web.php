@@ -6,6 +6,23 @@ use App\Http\Controllers\FishingTripController;
 use App\Http\Controllers\UserPhotoController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/fm-test', function () {
+    try {
+        $response = Http::timeout(10)->get(
+            'https://billion-vendors-settings-referrals.trycloudflare.com/fmi/data/vLatest/productInfo'
+        );
+
+        return response()->json([
+            'status' => $response->status(),
+            'body' => $response->json(),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+});
+
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'create'])->name('login');
     Route::post('/login', [AuthController::class, 'store'])->name('login.store');
