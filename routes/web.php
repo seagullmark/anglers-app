@@ -6,6 +6,8 @@ use App\Http\Controllers\FishingTripController;
 use App\Http\Controllers\UserPhotoController;
 use Illuminate\Support\Facades\Route;
 
+use App\Models\User;
+
 Route::get('/fm-eloquent-test', function () {
 
     $start = microtime(true);
