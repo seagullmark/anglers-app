@@ -27,17 +27,17 @@ Route::get('/fm-login-test', function () {
 
     try {
         $response = Http::withBasicAuth(
-            env('FM_USER'),
-            env('FM_PASSWORD')
+            env('DB_USERNAME'),
+            env('DB_PASSWORD')
         )->post(
-            'https://billion-vendors-settings-referrals.trycloudflare.com/fmi/data/vLatest/databases/DB名/sessions'
+            'https://billion-vendors-settings-referrals.trycloudflare.com/fmi/data/vLatest/databases/anglers/sessions'
         );
 
-        return response()->json([
+        return [
             'status' => $response->status(),
-            'body'   => $response->json(),
-            'raw'    => $response->body(),
-        ]);
+            'body' => $response->json(),
+            'raw' => $response->body(),
+        ];
     } catch (\Throwable $e) {
 
         return response()->json([
