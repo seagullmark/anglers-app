@@ -47,6 +47,24 @@ Route::get('/fm-login-test', function () {
     }
 });
 
+Route::get('/fm-login-timer', function () {
+
+    $start = microtime(true);
+
+    $response = Http::withBasicAuth(
+        env('DB_USERNAME'),
+        env('DB_PASSWORD')
+    )->post(
+        'https://billion-vendors-settings-referrals.trycloudflare.com/fmi/data/vLatest/databases/anglers/sessions'
+    );
+
+    return [
+        'seconds' => microtime(true) - $start,
+        'status' => $response->status(),
+        'body' => $response->json(),
+    ];
+});
+
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'create'])->name('login');
     Route::post('/login', [AuthController::class, 'store'])->name('login.store');
