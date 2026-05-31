@@ -51,18 +51,29 @@ Route::get('/fm-login-timer', function () {
 
     $start = microtime(true);
 
-    $response = Http::withBasicAuth(
-        env('DB_USERNAME'),
-        env('DB_PASSWORD')
-    )->post(
-        'https://billion-vendors-settings-referrals.trycloudflare.com/fmi/data/vLatest/databases/anglers/sessions'
-    );
+    try {
 
-    return [
-        'seconds' => microtime(true) - $start,
-        'status' => $response->status(),
-        'body' => $response->json(),
-    ];
+        $response = Http::withBasicAuth(
+            env('DB_USERNAME'),
+            env('DB_PASSWORD')
+        )->post(
+            'https://billion-vendors-settings-referrals.trycloudflare.com/fmi/data/vLatest/databases/anglers/sessions'
+        );
+
+        return response()->json([
+            'seconds' => microtime(true) - $start,
+            'status'  => $response->status(),
+            'body'    => $response->json(),
+            'raw'     => $response->body(),
+        ]);
+    } catch (\Throwable $e) {
+
+        return response()->json([
+            'seconds' => microtime(true) - $start,
+            'error'   => $e->getMessage(),
+            'class'   => get_class($e),
+        ], 500);
+    }
 });
 
 Route::middleware('guest')->group(function () {
