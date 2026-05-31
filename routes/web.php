@@ -56,16 +56,16 @@ Route::get('/fm-login-timer', function () {
         $response = Http::withBasicAuth(
             env('DB_USERNAME'),
             env('DB_PASSWORD')
-        )->post(
-            'https://billion-vendors-settings-referrals.trycloudflare.com/fmi/data/vLatest/databases/anglers/sessions'
-        );
+        )->withBody('', 'application/json')
+            ->post(
+                'https://billion-vendors-settings-referrals.trycloudflare.com/fmi/data/vLatest/databases/anglers/sessions'
+            );
 
-        return response()->json([
-            'seconds' => microtime(true) - $start,
-            'status'  => $response->status(),
-            'body'    => $response->json(),
-            'raw'     => $response->body(),
-        ]);
+        return [
+            'status' => $response->status(),
+            'body'   => $response->json(),
+            'raw'    => $response->body(),
+        ];
     } catch (\Throwable $e) {
 
         return response()->json([
