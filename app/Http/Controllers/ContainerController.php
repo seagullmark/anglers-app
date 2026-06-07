@@ -88,11 +88,16 @@ class ContainerController extends Controller
 
         if ($response->redirect()) {
             $redirectUrl = $response->header('Location');
+            $streamingSessionKey = $response->header('X-FMS-Session-Key');
 
             if (blank($redirectUrl)) {
                 return response()
                     ->json(['error' => 'Streaming redirect location was not returned.'], 502)
                     ->header('X-Content-Type-Options', 'nosniff');
+            }
+
+            if (filled($streamingSessionKey)) {
+                $headers['X-FMS-Session-Key'] = $streamingSessionKey;
             }
 
             $response = Http::withHeaders($headers)
