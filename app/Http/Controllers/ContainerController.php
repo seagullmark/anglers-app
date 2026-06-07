@@ -72,14 +72,37 @@ class ContainerController extends Controller
         // クッキーの管理のために CookieJar を作成
         $cookieJar = \GuzzleHttp\Cookie\CookieJar::fromArray([], '');
 
-        // Http ファサードを使用
-        /** @var Response $response */
-        $response = Http::withOptions([
-            'follow_redirects' => true, // リダイレクトを追従
-            'cookies' => $cookieJar, // CookieJar を指定
+        $requestOptions = [
+            'cookies' => $cookieJar,
             'timeout' => 10,
             'connect_timeout' => 5,
+        ];
+
+        /** @var Response $response */
+        $response = Http::withOptions($requestOptions + [
+            'allow_redirects' => false,
         ])->get($path);
+
+        if ($response->redirect()) {
+            $redirectUrl = $response->header('Location');
+            $streamingSessionKey = $response->header('X-FMS-Session-Key');
+
+            if (blank($redirectUrl)) {
+                return response()
+                    ->json(['error' => 'Streaming redirect location was not returned.'], 502)
+                    ->header('X-Content-Type-Options', 'nosniff');
+            }
+
+            $request = Http::withOptions($requestOptions + [
+                'allow_redirects' => true,
+            ]);
+
+            if (filled($streamingSessionKey)) {
+                $request = $request->withHeader('X-FMS-Session-Key', $streamingSessionKey);
+            }
+
+            $response = $request->get($redirectUrl);
+        }
 
         if ($response->failed()) {
             return response()
