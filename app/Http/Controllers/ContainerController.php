@@ -72,59 +72,18 @@ class ContainerController extends Controller
         // クッキーの管理のために CookieJar を作成
         $cookieJar = \GuzzleHttp\Cookie\CookieJar::fromArray([], '');
 
-        $requestOptions = [
-            'cookies' => $cookieJar,
+        // Http ファサードを使用
+        /** @var Response $response */
+        $response = Http::withOptions([
+            'follow_redirects' => true, // リダイレクトを追従
+            'cookies' => $cookieJar, // CookieJar を指定
             'timeout' => 10,
             'connect_timeout' => 5,
-        ];
-
-        /** @var Response $response */
-        $response = Http::withOptions($requestOptions + [
-            'allow_redirects' => false,
         ])->get($path);
-
-        $streamingDebug = [
-            'source_url' => $path,
-            'initial_status' => $response->status(),
-            'initial_content_type' => $response->header('Content-Type'),
-            'initial_location' => $response->header('Location'),
-            'initial_x_fms_session_key' => filled($response->header('X-FMS-Session-Key')),
-            'initial_set_cookie' => $response->header('Set-Cookie'),
-        ];
-
-        if ($response->redirect()) {
-            $redirectUrl = $response->header('Location');
-            $streamingSessionKey = $response->header('X-FMS-Session-Key');
-
-            if (blank($redirectUrl)) {
-                return response()
-                    ->json(['error' => 'Streaming redirect location was not returned.'], 502)
-                    ->header('X-Content-Type-Options', 'nosniff');
-            }
-
-            $request = Http::withOptions($requestOptions + [
-                'allow_redirects' => true,
-            ]);
-
-            if (filled($streamingSessionKey)) {
-                $request = $request->withHeader('X-FMS-Session-Key', $streamingSessionKey);
-            }
-
-            $response = $request->get($redirectUrl);
-
-            $streamingDebug['redirect_url'] = $redirectUrl;
-            $streamingDebug['final_status'] = $response->status();
-            $streamingDebug['final_content_type'] = $response->header('Content-Type');
-            $streamingDebug['final_location'] = $response->header('Location');
-            $streamingDebug['final_body_preview'] = substr($response->body(), 0, 500);
-        }
 
         if ($response->failed()) {
             return response()
-                ->json([
-                    'error' => 'Upstream request failed.',
-                    'streaming' => $streamingDebug,
-                ], 502)
+                ->json(['error' => 'Upstream request failed.'], 502)
                 ->header('X-Content-Type-Options', 'nosniff');
         }
 
