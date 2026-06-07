@@ -39,7 +39,7 @@ Route::get('/fm-eloquent-test', function () {
 Route::get('/fm-test', function () {
     try {
         $response = Http::timeout(10)->get(
-            'https://hay-luxury-folks-worship.trycloudflare.com/fmi/data/vLatest/productInfo'
+            'https://api.seagullapi.site/fmi/data/vLatest/productInfo'
         );
 
         return response()->json([
@@ -60,7 +60,7 @@ Route::get('/fm-login-test', function () {
             env('DB_USERNAME'),
             env('DB_PASSWORD')
         )->post(
-            'https://hay-luxury-folks-worship.trycloudflare.com/fmi/data/vLatest/databases/anglers/sessions'
+            'https://api.seagullapi.site/fmi/data/vLatest/databases/anglers/sessions'
         );
 
         return [
@@ -88,7 +88,7 @@ Route::get('/fm-login-timer', function () {
             env('DB_PASSWORD')
         )->withBody('', 'application/json')
             ->post(
-                'https://hay-luxury-folks-worship.trycloudflare.com/fmi/data/vLatest/databases/anglers/sessions'
+                'https://api.seagullapi.site/fmi/data/vLatest/databases/anglers/sessions'
             );
 
         return [
@@ -109,7 +109,7 @@ Route::get('/fm-login-timer', function () {
 Route::get('/fm-find-test', function () {
 
     $start = microtime(true);
-    $baseUrl = 'https://hay-luxury-folks-worship.trycloudflare.com/fmi/data/vLatest/databases/anglers';
+    $baseUrl = 'https://api.seagullapi.site/fmi/data/vLatest/databases/anglers';
 
     try {
 
@@ -154,6 +154,69 @@ Route::get('/fm-find-test', function () {
             'seconds' => microtime(true) - $start,
             'error'   => $e->getMessage(),
             'class'   => get_class($e),
+        ], 500);
+    }
+});
+
+Route::get('/fm-config-test', function () {
+    $config = config('database.connections.fm');
+
+    return response()->json([
+        'connection' => config('database.default'),
+        'fm' => [
+            'host' => $config['host'] ?? null,
+            'database' => $config['database'] ?? null,
+            'username' => $config['username'] ?? null,
+            'prefix' => $config['prefix'] ?? null,
+            'version' => $config['version'] ?? null,
+            'protocol' => $config['protocol'] ?? null,
+            'cache_session_token' => $config['cache_session_token'] ?? null,
+            'request_timeout' => $config['request_timeout'] ?? null,
+        ],
+    ]);
+});
+
+Route::get('/fm-package-login-test', function () {
+
+    $start = microtime(true);
+    $config = config('database.connections.fm');
+    $baseUrl = ($config['protocol'] ?? 'https') . '://'
+        . $config['host']
+        . '/fmi/data/'
+        . ($config['version'] ?? 'vLatest')
+        . '/databases/'
+        . $config['database'];
+
+    try {
+        $payload = [
+            'fmDataSource' => [
+                [
+                    'database' => $config['database'],
+                    'username' => $config['username'],
+                    'password' => $config['password'],
+                ],
+            ],
+        ];
+
+        $response = Http::withBasicAuth(
+            $config['username'],
+            $config['password']
+        )->post($baseUrl . '/sessions', $payload);
+
+        return response()->json([
+            'seconds' => microtime(true) - $start,
+            'url' => $baseUrl . '/sessions',
+            'status' => $response->status(),
+            'body' => $response->json(),
+            'raw' => $response->body(),
+        ]);
+    } catch (\Throwable $e) {
+
+        return response()->json([
+            'seconds' => microtime(true) - $start,
+            'url' => $baseUrl . '/sessions',
+            'error' => $e->getMessage(),
+            'class' => get_class($e),
         ], 500);
     }
 });
