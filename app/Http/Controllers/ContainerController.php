@@ -83,6 +83,15 @@ class ContainerController extends Controller
             'allow_redirects' => false,
         ])->get($path);
 
+        $streamingDebug = [
+            'source_url' => $path,
+            'initial_status' => $response->status(),
+            'initial_content_type' => $response->header('Content-Type'),
+            'initial_location' => $response->header('Location'),
+            'initial_x_fms_session_key' => filled($response->header('X-FMS-Session-Key')),
+            'initial_set_cookie' => $response->header('Set-Cookie'),
+        ];
+
         if ($response->redirect()) {
             $redirectUrl = $response->header('Location');
             $streamingSessionKey = $response->header('X-FMS-Session-Key');
@@ -102,11 +111,20 @@ class ContainerController extends Controller
             }
 
             $response = $request->get($redirectUrl);
+
+            $streamingDebug['redirect_url'] = $redirectUrl;
+            $streamingDebug['final_status'] = $response->status();
+            $streamingDebug['final_content_type'] = $response->header('Content-Type');
+            $streamingDebug['final_location'] = $response->header('Location');
+            $streamingDebug['final_body_preview'] = substr($response->body(), 0, 500);
         }
 
         if ($response->failed()) {
             return response()
-                ->json(['error' => 'Upstream request failed.'], 502)
+                ->json([
+                    'error' => 'Upstream request failed.',
+                    'streaming' => $streamingDebug,
+                ], 502)
                 ->header('X-Content-Type-Options', 'nosniff');
         }
 
