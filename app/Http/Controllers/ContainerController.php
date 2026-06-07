@@ -98,6 +98,12 @@ class ContainerController extends Controller
 
             if (filled($streamingSessionKey)) {
                 $headers['X-FMS-Session-Key'] = $streamingSessionKey;
+                $cookieJar->setCookie(new \GuzzleHttp\Cookie\SetCookie([
+                    'Name' => 'X-FMS-Session-Key',
+                    'Value' => $streamingSessionKey,
+                    'Domain' => parse_url($redirectUrl, PHP_URL_HOST),
+                    'Path' => '/',
+                ]));
             }
 
             $response = Http::withHeaders($headers)
