@@ -72,46 +72,14 @@ class ContainerController extends Controller
         // クッキーの管理のために CookieJar を作成
         $cookieJar = \GuzzleHttp\Cookie\CookieJar::fromArray([], '');
 
-        $headers = $this->cloudflareAccessHeaders();
-        $requestOptions = [
-            'cookies' => $cookieJar,
+        // Http ファサードを使用
+        /** @var Response $response */
+        $response = Http::withOptions([
+            'follow_redirects' => true, // リダイレクトを追従
+            'cookies' => $cookieJar, // CookieJar を指定
             'timeout' => 10,
             'connect_timeout' => 5,
-        ];
-
-        /** @var Response $response */
-        $response = Http::withHeaders($headers)
-            ->withOptions($requestOptions + [
-                'allow_redirects' => false,
-            ])
-            ->get($path);
-
-        if ($response->redirect()) {
-            $redirectUrl = $response->header('Location');
-            $streamingSessionKey = $response->header('X-FMS-Session-Key');
-
-            if (blank($redirectUrl)) {
-                return response()
-                    ->json(['error' => 'Streaming redirect location was not returned.'], 502)
-                    ->header('X-Content-Type-Options', 'nosniff');
-            }
-
-            if (filled($streamingSessionKey)) {
-                $headers['X-FMS-Session-Key'] = $streamingSessionKey;
-                $cookieJar->setCookie(new \GuzzleHttp\Cookie\SetCookie([
-                    'Name' => 'X-FMS-Session-Key',
-                    'Value' => $streamingSessionKey,
-                    'Domain' => parse_url($redirectUrl, PHP_URL_HOST),
-                    'Path' => '/',
-                ]));
-            }
-
-            $response = Http::withHeaders($headers)
-                ->withOptions($requestOptions + [
-                    'allow_redirects' => false,
-                ])
-                ->get($redirectUrl);
-        }
+        ])->get($path);
 
         if ($response->failed()) {
             return response()
@@ -169,23 +137,5 @@ class ContainerController extends Controller
         }
 
         return null;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private function cloudflareAccessHeaders(): array
-    {
-        $clientId = config('services.cloudflare_access.client_id');
-        $clientSecret = config('services.cloudflare_access.client_secret');
-
-        if (blank($clientId) || blank($clientSecret)) {
-            return [];
-        }
-
-        return [
-            'CF-Access-Client-Id' => $clientId,
-            'CF-Access-Client-Secret' => $clientSecret,
-        ];
     }
 }
